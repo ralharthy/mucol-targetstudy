@@ -11,5 +11,6 @@ solenoid MuonSolenoid coilName=MuonCaptureCoil current=98.68 color=0,1,1,0.4
 place MuonSolenoid z=0
 
 # Print the fieldmap
+# Uncomment the printfield line that you wnat to use
 # printfield type=grid file=fmgrid2.txt X0=-700 Y0=-700 Z0=-1000 nX=15 nY=15 nZ=21 dX=100 dY=100 dZ=100
 printfield type=cylinder file=fmcylinder.txt Z0=-1000 nR=15 dR=5 nZ=401 dZ=5
