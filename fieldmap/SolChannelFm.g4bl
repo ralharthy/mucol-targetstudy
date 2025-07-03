@@ -1,0 +1,15 @@
+# The "default" physics list is QGSP_BERT
+physics QGSP_BERT
+
+# Define a solenoid coil for capturing and guiding muons
+coil MuonCaptureCoil innerRadius=700 outerRadius=750 length=2000 nSheets=2000 material=Cu
+
+# Generate a solenoid field using the coil
+solenoid MuonSolenoid coilName=MuonCaptureCoil current=98.68 color=0,1,1,0.4
+
+# Place the solenoid over the tungsten target
+place MuonSolenoid z=0
+
+# Print the fieldmap
+# printfield type=grid file=fmgrid2.txt X0=-700 Y0=-700 Z0=-1000 nX=15 nY=15 nZ=21 dX=100 dY=100 dZ=100
+printfield type=cylinder file=fmcylinder.txt Z0=-1000 nR=15 dR=5 nZ=401 dZ=5
