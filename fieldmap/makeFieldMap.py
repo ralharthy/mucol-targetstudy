@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import mucol.fieldmap_utils as fm
 import os
+import mplhep as hep
+plt.style.use(hep.style.CMS)
 
 # Config
 directory = 'Bfield_g4blDatasets/'
@@ -96,19 +98,20 @@ if filename_cylin is not None:
     print('Done!')
 
     os.makedirs("Bfield_Plots", exist_ok=True)
-    plot_output = "BfieldPlots/" + filename_cylin.replace('fm', 'fluka').replace('.txt', '.png')
+    plot_output = "Bfield_Plots/" + filename_cylin.replace('fm', 'fluka').replace('.txt', '.png')
 
     if coords_cylin == 'rz':
         print(f'Plotting the field map and saving to: {plot_output}\n')
         on_axis = (data_sorted['r'] == 0)
         z = data_sorted[on_axis]['z']
         Bz = data_sorted[on_axis]['Bz']
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(7, 4.5))
         plt.plot(z, Bz, color='orange')
-        plt.xlabel('z [cm]')
-        plt.ylabel('Bz [T]')
-        plt.title('Bz on beam axis')
-        plt.savefig(plot_output)
+        plt.xlabel('z [cm]', fontsize=14)
+        plt.ylabel('Bz [T]', fontsize=14)
+        plt.tick_params(axis='both', labelsize=14)
+        plt.title('Bz on beam axis', fontsize=16)
+        plt.savefig(plot_output, bbox_inches='tight')
         plt.close()
 
 ## --------------------------------------------
