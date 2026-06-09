@@ -1,0 +1,10 @@
+# ignore all data "txt" and "dat" files upon pushing to github
+*.txt
+*.dat
+
+# ignore the virtual environment folder
+mucol-env/
+
+# ignore __pycheck__ folders
+__pycache__/
+*.pyc

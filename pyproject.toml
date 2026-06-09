@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mucol"
+version = "0.1.0"
+description = "Muon collider analysis utilities"
+authors = [
+    {name = "Ruaa Alharthy", email = "ralharthy@wisc.edu"}
+]
+maintainers = [
+    {name = "Ruaa Alharthy", email = "ralharthy@wisc.edu"}
+]
+
+requires-python = ">=3.10"
+
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "mplhep",
+    "awkward",
+    "pandas",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
