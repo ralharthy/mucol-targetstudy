@@ -95,7 +95,7 @@ if filename_cylin is not None:
 
     print('Done!')
 
-    os.makedirs("BfieldPlots", exist_ok=True)
+    os.makedirs("Bfield_Plots", exist_ok=True)
     plot_output = "BfieldPlots/" + filename_cylin.replace('fm', 'fluka').replace('.txt', '.png')
 
     if coords_cylin == 'rz':
