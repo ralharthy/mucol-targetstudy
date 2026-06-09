@@ -13,5 +13,5 @@ place MuonSolenoid z=0
 # Print the fieldmap
 # Uncomment the printfield line that you wnat to use
 # Naming convention: B*L*R*_mapType.txt
-printfield type=grid file=B5L200R70_fmGrid.txt X0=-700 Y0=-700 Z0=-1000 nX=15 nY=15 nZ=21 dX=100 dY=100 dZ=100
-# printfield type=cylinder file=fmCylinder.txt Z0=-1000 nR=15 dR=5 nZ=401 dZ=5
+printfield type=grid file=Bfield_g4blDatasets/B5L200R70_fmGrid.txt X0=-700 Y0=-700 Z0=-1000 nX=15 nY=15 nZ=21 dX=100 dY=100 dZ=100
+printfield type=cylinder file=Bfield_g4blDatasets/B5L200R70_fmCylinder.txt Z0=-1000 nR=15 dR=5 nZ=401 dZ=5
