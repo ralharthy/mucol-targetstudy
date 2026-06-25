@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import mucol.fieldmap_utils as fm
 import os
+import subprocess as sp
 import mplhep as hep
 plt.style.use(hep.style.CMS)
 
@@ -10,7 +11,18 @@ plt.style.use(hep.style.CMS)
 directory = 'Bfield_g4blDatasets/'
 filename_cylin = 'B5L200R70_fmCylinder.txt'
 filename_grid = 'B5L200R70_fmGrid.txt'
+g4blfile = "SolChannelFm.g4bl"
 
+if os.path.exists(directory + filename_cylin):
+    os.remove(directory + filename_cylin)
+
+if os.path.exists(directory + filename_grid):
+    os.remove(directory + filename_grid)
+
+sp.run(
+    ["bash", "-c", f"g4bl {g4blfile}"],
+    check=True,
+)
 ## --------------------------------------------
 ## ------------ For cylinder data -------------
 ## --------------------------------------------
