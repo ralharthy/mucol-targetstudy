@@ -10,5 +10,8 @@ mucol-env/
 __pycache__/
 *.pyc
 
+# ignore .ipynb_checkpoints folder
+.ipynb_checkpoints/
+
 # ignore personal notes files
 myNotes.txt
