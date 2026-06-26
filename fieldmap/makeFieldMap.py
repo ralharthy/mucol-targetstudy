@@ -9,8 +9,8 @@ plt.style.use(hep.style.CMS)
 
 # Config
 directory = 'Bfield_g4blDatasets/'
-filename_cylin = 'B5L200R70_fmCylinder.txt'
-filename_grid = 'B5L200R70_fmGrid.txt'
+filename_cylin = 'B10L200R70_fmCylinder.txt'
+filename_grid = 'B10L200R70_fmGrid.txt'
 g4blfile = "SolChannelFm.g4bl"
 
 if os.path.exists(directory + filename_cylin):
@@ -117,6 +117,8 @@ if filename_cylin is not None:
         on_axis = (data_sorted['r'] == 0)
         z = data_sorted[on_axis]['z']
         Bz = data_sorted[on_axis]['Bz']
+        printMaxB = f'Maximum B-field on axis: {max(Bz):.4f} T at z = {z[Bz.idxmax()]:.2f} cm'
+        printMinB = f'Minimum B-field on axis: {min(Bz):.4f} T at z = {z[Bz.idxmin()]:.2f} cm'
         plt.figure(figsize=(7, 4.5))
         plt.plot(z, Bz, color='orange')
         plt.xlabel('z [cm]', fontsize=14)
@@ -210,4 +212,6 @@ if filename_grid is not None:
     with open(output, "w") as f:
         f.writelines(lines)
 
-    print('Done!')
+    print('Done!\n')
+    print(printMaxB)
+    print(printMinB, '\n')
