@@ -1,6 +1,9 @@
-# ignore all data "txt" and "dat" files upon pushing to github
+# ignore all data "txt", "dat" and "flair" files upon pushing to github
 *.txt
 *.dat
+*.parquet
+fieldmap/Bfield_flukaDatasets/*.flair
+fieldmap/Bfield_flukaDatasets/*~
 
 # ignore the virtual environment folder
 mucol-env/
@@ -15,3 +18,6 @@ __pycache__/
 
 # ignore personal notes files
 myNotes.txt
+
+# ignore FLUKA's jargon files
+flukaSims/**/
