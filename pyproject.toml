@@ -13,14 +13,13 @@ maintainers = [
     {name = "Ruaa Alharthy", email = "ralharthy@wisc.edu"}
 ]
 
-requires-python = ">=3.10"
-
 dependencies = [
     "numpy",
     "matplotlib",
     "mplhep",
     "awkward",
     "pandas",
+    "pathlib",
 ]
 
 [tool.setuptools]
