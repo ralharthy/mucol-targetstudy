@@ -15,7 +15,7 @@ coil World innerRadius=1000 outerRadius=1100 length=20000 nSheets=1000 material=
 # 8T  = 157.2 A | 141.5 A  |
 # 9T  = 176.8 A | 159.05 A |
 # 10T = 196.4 A | 176.8 A  |
-solenoid MuonSolenoid coilName=MuonCaptureCoilL2 current=196.4 color=0,1,1,0.4
+solenoid MuonSolenoid coilName=MuonCaptureCoilL2 current=58.8 color=0,1,1,0.4
 solenoid WorldSolenoid coilName=World current=0 color=0,1,0.5,0.7
 
 # Place the solenoid over the tungsten target
@@ -25,5 +25,5 @@ place WorldSolenoid z=0
 # Print the fieldmap
 # Uncomment the printfield line that you wnat to use
 # Naming convention: B*L*R*_mapType.txt (* in cm)
-printfield type=grid file=Bfield_g4blDatasets/B10L200R70_fmGrid.txt X0=-800 Y0=-800 Z0=-2000 nX=17 nY=17 nZ=41 dX=100 dY=100 dZ=100
-printfield type=cylinder file=Bfield_g4blDatasets/B10L200R70_fmCylinder.txt Z0=-4000 nR=5 dR=5 nZ=1601 dZ=5
+printfield type=grid file=Bfield_g4blDatasets/B3L200R70_fmGrid.txt X0=-800 Y0=-800 Z0=-2000 nX=17 nY=17 nZ=61 dX=100 dY=100 dZ=100
+printfield type=cylinder file=Bfield_g4blDatasets/B3L200R70_fmCylinder.txt Z0=-4000 nR=5 dR=5 nZ=1601 dZ=5

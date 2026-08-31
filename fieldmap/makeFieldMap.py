@@ -7,10 +7,12 @@ import subprocess as sp
 import mplhep as hep
 plt.style.use(hep.style.CMS)
 
+Bvalue = 3  # Tesla
+
 # Config
 directory = 'Bfield_g4blDatasets/'
-filename_cylin = 'B10L200R70_fmCylinder.txt'
-filename_grid = 'B10L200R70_fmGrid.txt'
+filename_cylin = f'B{Bvalue}L200R70_fmCylinder.txt'
+filename_grid = f'B{Bvalue}L200R70_fmGrid.txt'
 g4blfile = "SolChannelFm.g4bl"
 
 if os.path.exists(directory + filename_cylin):
