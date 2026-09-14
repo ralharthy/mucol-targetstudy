@@ -34,10 +34,16 @@ def split_by_particle(events):
         # "Pion": events[(events.id == 13) | (events.id == 14) | (events.id == 23)],
         "PiPlus": events[events.id == 13],
         "PiMinus": events[events.id == 14],
-        "PiZero": events[events.id == 23],
+        # "PiZero": events[events.id == 23],
         "MuPlus": events[events.id == 10],
-        "MuMinus": events[events.id == 10],
-        "Proton": events[events.id == 1],
+        "MuMinus": events[events.id == 11],
+        # "Proton": events[events.id == 1],
+        "KaonPlus": events[events.id == 15],
+        "KaonMinus": events[events.id == 16],
+        "Lambda": events[events.id == 17],
+        "AntiLambda": events[events.id == 18],
+        "SigmaMinus": events[events.id == 20],
+        "SigmaPlus": events[events.id == 21],
     })
 
 def combine_particles(events, locations):
