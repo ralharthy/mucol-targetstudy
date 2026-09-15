@@ -1,4 +1,0 @@
-Arguments:  
-Linking fluka.x with objects:  ./mgdraw.o
-./mgdraw.o
-gfortran -o fluka.x -fuse-ld=bfd mgdraw.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/zrdpcm.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/eventd.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/idd2f.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/glaubr.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/asciir.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/eveout.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/idf2d.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/dpmjex.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/evdini.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/rqm2pr.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/evqmdi.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/rqmdex.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/zrrqcm.o /opt/FLUKA_CERN/fluka4-5.0/lib/interface/eveqmd.o -L/opt/FLUKA_CERN/fluka4-5.0/lib -lrqmd -lfluka -lgeometry -ldata -lmath -ltool -lstdc++ -lz -lpthread -lDPMJET -lfluka
