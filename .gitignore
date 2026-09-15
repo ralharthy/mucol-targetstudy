@@ -20,4 +20,4 @@ __pycache__/
 myNotes.txt
 
 # ignore FLUKA's jargon files
-flukaSims/**/
+flukaSims/BfieldStrength/*/
