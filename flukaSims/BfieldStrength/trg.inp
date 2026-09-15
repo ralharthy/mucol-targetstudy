@@ -1,0 +1,99 @@
+#define Bfield
+#define Bfield03
+#define Bfield04
+#define Bfield05
+#define Bfield06
+#define Bfield07
+#define Bfield08
+#define Bfield09
+#define Bfield10
+TITLE
+Capture System
+*Set the defaults for precision simulations
+DEFAULTS                                                              PRECISIO
+*Define the beam characteristics
+!@scale=3.5
+BEAM            -8.0                                                  PROTON
+*Define the beam position
+BEAMPOS                             -150
+GEOBEGIN                                                              COMBNAME
+    0    0          
+SPH blkbody    0 0 0 1250
+SPH void       0 0 0 700.0
+ZEC out_sol    0 0 80.0 80
+ZEC in_sol     0 0 70.0 70
+ZEC beamline   0 0 30.0 30
+XYP wall1      -200.0
+XYP wall2      -100.0
+XYP wall3      100.0
+XYP wall4      400.0
+XYP det2       200.0
+XYP det3       300.0
+RCC target     0 0 -7.5 0 0 15 0.15
+END
+BLKBODY      5 +blkbody -void
+VOID         5 +void +wall1
+               | +void -wall4
+               | +void -out_sol
+OUT          5 +out_sol +wall4 -in_sol -wall1
+               | +in_sol +wall2 -beamline -wall1
+               | +in_sol +wall4 -beamline -wall3
+DRIVER       5 +beamline +wall2 -wall1
+SOLENOID     5 +in_sol +wall3 -wall2 -target
+BEAML1       5 +beamline +det2 -wall3
+BEAML2       5 +beamline +det3 -det2
+BEAML3       5 +beamline +wall4 -det3
+TRG          5 +target
+END
+GEOEND
+MATERIAL          24                7.18                              CHROMIUM
+*Inconel-600
+MATERIAL                            8.43                              Inconel_
+COMPOUND        15.0  CHROMIUM       9.0      IRON      76.0    NICKELInconel_
+ASSIGNMA    BLCKHOLE   BLKBODY
+ASSIGNMA         AIR      VOID
+ASSIGNMA         AIR       OUT                             1
+ASSIGNMA      VACUUM    DRIVER                             1
+ASSIGNMA      VACUUM  SOLENOID                             1
+ASSIGNMA      VACUUM    BEAML1                             1
+ASSIGNMA      VACUUM    BEAML2                             1
+ASSIGNMA      VACUUM    BEAML3                             1
+ASSIGNMA    Inconel_       TRG                             1
+#if Bfield
+MGNCREAT         300                                                  FMGRID
+MGNCREAT                                        17        17        61 &
+MGNCREAT         -80       -80      -200        80        80       400 &&
+#if Bfield03
+#include ../../fieldmap/Bfield_flukaDatasets/B3L150R70_flukaGrid.inp
+#elif Bfield04
+#include ../../fieldmap/Bfield_flukaDatasets/B4L150R70_flukaGrid.inp
+#elif Bfield05
+#include ../../fieldmap/Bfield_flukaDatasets/B5L150R70_flukaGrid.inp
+#elif Bfield06
+#include ../../fieldmap/Bfield_flukaDatasets/B6L150R70_flukaGrid.inp
+#elif Bfield07
+#include ../../fieldmap/Bfield_flukaDatasets/B7L150R70_flukaGrid.inp
+#elif Bfield08
+#include ../../fieldmap/Bfield_flukaDatasets/B8L150R70_flukaGrid.inp
+#elif Bfield09
+#include ../../fieldmap/Bfield_flukaDatasets/B9L150R70_flukaGrid.inp
+#elif Bfield10
+#include ../../fieldmap/Bfield_flukaDatasets/B10L150R70_flukaGrid.inp
+#endif
+MGNFIELD                                       OUT                    FMGRID
+MGNFIELD                                    DRIVER                    FMGRID
+MGNFIELD                                  SOLENOID                    FMGRID
+MGNFIELD                                    BEAML1                    FMGRID
+MGNFIELD                                    BEAML2                    FMGRID
+MGNFIELD                                    BEAML3                    FMGRID
+MGNFIELD                                       OUT                    FMGRID
+#else
+MGNFIELD                                                             0
+#endif
+USERDUMP         100        21         0         1                    dump
+*..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
+*Set the random number seed
+RANDOMIZ         1.0
+*Set the number of primary histories to be simulated in the run
+START
+STOP

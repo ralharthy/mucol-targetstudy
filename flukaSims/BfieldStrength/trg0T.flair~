@@ -1,0 +1,592 @@
+# flair project file
+Version: 300
+Mode: fluka
+md5: b5e181c873b9327d334a69ba37524aee
+Input:
+#define trg_len 15
+*********** Choose target material - default Nickel
+!#define mat_tung
+#define mat_inc
+#if mat_tung
+#define len 10
+#elif mat_inc
+#define len 17
+#else
+#define len 15
+#endif
+*********** radius is constant
+#define rad 0.15
+*********** This will discard : PHOTON, ELECTRON, POSITRON, NEUTRON, ANEUTRON
+!#define discard
+*********** This will turn on tracking and turn off scoring - defualt off
+!#define track
+TITLE
+	target and source study
+*Set the defaults for precision simulations
+DEFAULTS PRECISIO
+*Define the beam characteristics
+BEAM PROTON -8.0
+	@select=8
+	scale=1
+*Define the beam position
+BEAMPOS ,,, -150
+GEOBEGIN COMBNAME
+SPH blkhole 0 0 0 1000
+	@select=8
+SPH void 0 0 0 800
+	@select=8
+TRC trg 0 0 =-(len/2) 0 0 $len $rad $rad
+	@select=8
+RCC solenoid,, 0 -100.0 0 0 200.0 70.0
+	@select=8
+RCC beamline,, 0 -199.5 0 0 599 30
+	@select=8
+XYP center 0
+	@select=8
+RCC wall 0 0 -200.0 0 0 600.0 80.0
+	@select=8
+RCC det1 0 0 100.1 0 0 5 29.99
+	@select=8
+RCC det2 0 0 200 0 0 5 29.99
+	@select=8
+RCC det3 0 0 300 0 0 5 29.99
+	@select=8
+RCC det4 0 0 394 0 0 4.9 29.99
+	@select=8
+END
+REGION BLCKHOLE
+	+blkhole -void
+REGION VOID
+	+void -wall
+	@select=1
+REGION BFIELD
+	+solenoid -trg -beamline
+	| +solenoid +beamline -trg
+	| +beamline -solenoid -center -det1 -det2 -det3 -det4
+REGION TRG
+	+trg
+REGION DRIVER
+	+beamline +center -solenoid
+REGION SOLENOID
+	+wall -solenoid -beamline
+REGION DET1
+	+det1
+REGION DET2
+	+det2
+REGION DET3
+	+det3
+REGION DET4
+	+det4
+END
+GEOEND
+MATERIAL GRAPHITE 6,, 1.7
+MATERIAL CHROMIUM 24,, 7.18
+*Inconel-600
+MATERIAL Inconel_,,, 8.43
+COMPOUND Inconel_ 15.0 CHROMIUM 9.0 IRON 76.0 NICKEL
+MAT-PROP ,,, 78.0 GRAPHITE
+MAT-PROP DPA-ENER 31.0,,, GRAPHITE
+STERNHEI GRAPHITE 3.155 0.048 2.5387 0.20762 2.9532 0.14
+ASSIGNMA , BLCKHOLE BLCKHOLE
+ASSIGNMA , BLCKHOLE VOID
+ASSIGNMA , VACUUM DRIVER
+ASSIGNMA , VACUUM BFIELD
+ASSIGNMA , AIR SOLENOID
+ASSIGNMA , VACUUM DET1
+ASSIGNMA , VACUUM DET2
+ASSIGNMA , VACUUM DET3
+ASSIGNMA , VACUUM DET4
+#if mat_inc
+ASSIGNMA , Inconel_ TRG
+#else
+ASSIGNMA , NICKEL TRG
+#endif
+#if discard
+DISCARD , NEUTRON ANEUTRON PHOTON ELECTRON POSITRON
+#endif
+#if track
+USERDUMP dump 100 31 0
+#else
+USERDUMP score 100 32 0 1
+!USERWEIG ,,, 3
+*## Score hadrons that are produced in the target
+!USRYIELD pip_prod 201 PION+ -33 -1 -2 0.01 10 0 60 100 0 2803
+!USRYIELD pin_prod 201 PION- -33 -1 -2 0.01 10 0 60 100 0 2803
+!USRYIELD mup_prod 201 MUON+ -33 -1 -2 0.01 10 0 60 100 0 2803
+!USRYIELD mun_prod 201 MUON- -33 -1 -2 0.01 10 0 60 100 0 2803
+*## Score hadrons that escape the target
+!USRBDX escSco 1 ALL-PART -35 TRG BFIELD 1 15 0 60
+!USRBDX det1in 1 ALL-PART -35 DET1 BFIELD 1 15 0 60
+!USRBDX det1out 1 ALL-PART -35 DET1 SOLENOID 1 15 0 60
+!USRBDX aro_mup 1 MUON+ -35 TRG VOID 1 10 0 60
+!USRBDX aro_mun 1 MUON- -35 TRG VOID 1 10 0 60
+!USRBDX aro_piz 1 PIZERO -34 TRG TRG_ARO 1 10 0 60
+!USRBIN bin 10 PION+ -21 70 70 100 -70 -70 -100 140 140 200
+#endif
+*..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
+*Set the random number seed
+RANDOMIZ , 1.0
+#if track
+*Set the number of primary histories to be simulated in the run
+START , 100
+#else
+*Set the number of primary histories to be simulated in the run
+START , 100000
+#endif
+STOP
+EndInput
+
+Notes:
+	|nfs_scratch output directory:
+	|/nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/
+Page: Geometry
+plotengine: Gnuplot
+Compile: /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	link: ldpmqmd
+	source: ['exe2/mgdraw.f']
+End
+
+# Run information
+Run: <default>
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	open:     1
+End
+Run: tracks/Bfield03
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield3
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430583.9677844
+End
+Run: tracks/Bfield04
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield4
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430584.2572644
+End
+Run: tracks/Bfield05
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield5
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430584.7277164
+End
+Run: tracks/Bfield06
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield6
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430585.048493
+End
+Run: tracks/Bfield07
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield7
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430585.4409313
+End
+Run: tracks/Bfield08
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield8
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430585.7372885
+End
+Run: tracks/Bfield09
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield9
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430586.086719
+End
+Run: tracks/Bfield10
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield10
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430586.3873403
+End
+Run: pibeam5T/run
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield5
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	StartRun: 1784316688.2384865
+End
+Run: test/test01
+	Title:    test
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Start:    50.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1787089599.2973177
+	open:     1
+End
+Run: test/test02
+	Title:    test
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Rnd:      94265984
+	Start:    50.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1787702542.2255352
+	open:     1
+End
+Run: test/test03
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Rnd:      222
+	Start:    10000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   4
+	StartRun: 1788302345.198549
+	open:     1
+End
+Run: test03_01
+	Rnd:      223
+	Last:     1
+	Status:   3
+	StartRun: 1788303364.7110045
+	Parent:   test/test03
+	open:     1
+End
+Run: test03_02
+	Rnd:      224
+	Last:     1
+	Status:   4
+	Pid:      2907672
+	StartRun: 1788303364.81556
+	Parent:   test/test03
+	open:     1
+End
+Run: test03_03
+	Rnd:      225
+	Last:     1
+	Status:   3
+	StartRun: 1788303364.9272017
+	Parent:   test/test03
+	open:     1
+End
+Run: TrgCenter/run00
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Rnd:      110
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	StartRun: 1787011130.6742253
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/test/test
+	Title:    test
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Rnd:      1229934149
+	Start:    50.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	StartRun: 1787703595.5156164
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00-v2
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	open:     1
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Rnd:      2000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   4
+	open:     1
+End
+Run: run00_01
+	Rnd:      2021
+	Last:     1
+	Status:   2
+	Pid:      2907921
+	StartRun: 1788303438.343711
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_02
+	Rnd:      2002
+	Last:     1
+	Status:   4
+	Pid:      2905821
+	StartRun: 1788302488.2513056
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_03
+	Rnd:      2013
+	Last:     1
+	Status:   4
+	Pid:      2906353
+	StartRun: 1788302646.867119
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_04
+	Rnd:      2004
+	Last:     1
+	Status:   4
+	StartRun: 1788302488.6957858
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_05
+	Rnd:      2005
+	Last:     1
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_06
+	Rnd:      2006
+	Last:     1
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_07
+	Rnd:      2007
+	Last:     1
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_08
+	Rnd:      2008
+	Last:     1
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_09
+	Rnd:      2009
+	Last:     1
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Run: run00_10
+	Rnd:      2010
+	Last:     1
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	open:     1
+End
+Geometry: Geometry
+	Layer: 3D
+		3D: 1
+		3D._visible: 1
+		3D.edgedetect: 1
+		Options.viewport: 0
+		Show: 0
+		Show.lattice: 1
+		Show.voxel: 1
+	End
+	Layer: traj_3d
+		3D: 1
+		3D._visible: 1
+		3D.edgedetect: 1
+		Options.viewport: 0
+		Show: 0
+		Show.lattice: 1
+		Show.voxel: 1
+		Userdump: 1
+		Userdump.PROTON: 1
+		Userdump._visible: 1
+		Userdump.file: trk_proton/trk001_dump
+	End
+	Layer: Bfield03
+		Userdump: 1
+		Userdump.PION+: 1
+		Userdump._visible: 1
+		Userdump.file: tracks/Bfield03001_dump
+		Userdump.n: 20
+	End
+	Layer: Bfield04
+		Userdump: 1
+		Userdump.PION+: 1
+		Userdump._visible: 1
+		Userdump.file: tracks/Bfield04001_dump
+		Userdump.n: 20
+	End
+	Layer: Bfield05
+		Userdump: 1
+		Userdump.PION+: 1
+		Userdump._visible: 1
+		Userdump.file: tracks/Bfield08001_dump
+		Userdump.n: 20
+	End
+End
+
+# Plots information
+Plot: Red
+	Type: Geometry
+	basisu: 0 0 1
+	basisv: 1 0 0
+	coord: Z-X
+	extends: 255.58399949649723 133.8217592493075
+	grid: 0
+	group: Geometry
+	index: 1
+	layer: Media
+	nu: 100
+	nv: 70
+	open: 1
+	origin: -10.3181 0 48.0335
+	ratio: 0.7
+	title: Magnetic field (5T)
+	vectscale: 4
+	xlabel: z [cm]
+	ylabel: x [cm]
+End
+Plot: Green
+	Type: Geometry
+	basisu: 4.36617e-07 0.707107 -0.707107
+	basisv: 0.816497 -0.408248 -0.408248
+	extends: 174.18239999999994 91.33955121951217
+	grid: 0
+	group: Geometry
+	index: 2
+	layer: Media
+	nu: 70
+	nv: 70
+	open: 1
+	origin: 3.37145 -16.2846 12.9131
+	title: Magnetic field (3T)
+	vectscale: 4
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: Blue
+	Type: Geometry
+	basisu: 0 0 1
+	coord: Z-Y
+	extends: 891.6100448255995 465.4828696730299
+	group: Geometry
+	layer: Bfield05
+	open: 1
+	origin: 0 -92.9132 35.4502
+End
+Plot: Magenta
+	Type: Geometry
+	coord: X-Y
+	extends: 70.0 36.600609756097555
+	grid: 0
+	group: Geometry
+	index: 3
+	layer: Media
+	nu: 100
+	nv: 100
+	open: 1
+	origin: 271.24 23.2666 0
+	title: Magnetic field (3T)
+	vectscale: 4
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: test/test_21_plot
+	Type: USRBIN
+	cblog: 1
+	cbtics: 1
+	datafile: test/test_21.bnn
+	grid: 0
+	group: test/test
+	hist: 2D Projection
+	int: 206.71972052543936
+	max: 2.37863022E-03
+	min: 3.64751140E-09
+	open: 1
+	proj: Y
+	ratio: 0.7
+	title: USRBIN test/test 21
+End
+Plot: test/test_33_plot
+	Type: USR-1D
+	file.0: test/test_33_tab.lis
+	group: test/test
+	lc.0: red
+	lw.0: 2
+	name.0: Detector 1
+	ndetectors: 1
+	open: 1
+	title: USR-1D test/test 33
+	x.0: 2
+	xlog: 1
+	y.0: 0
+	ylog: 1
+End

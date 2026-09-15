@@ -1,0 +1,157 @@
+#define trg_len 15
+*********** Choose target material - default Nickel
+!#define mat_tung
+#define mat_inc
+#if mat_tung
+#define len 10
+#elif mat_inc
+#define len 17
+#else
+#define len 15
+#endif
+*********** radius is constant
+#define rad 0.15
+*********** Turn Bfield on/off
+#define Bfield3
+#define Bfield4
+#define Bfield5
+#define Bfield6
+#define Bfield7
+#define Bfield8
+#define Bfield9
+#define Bfield10
+*********** This will discard : PHOTON, ELECTRON, POSITRON, NEUTRON, ANEUTRON
+!#define discard
+*********** This will turn on tracking and turn off scoring - defualt off
+!#define track
+TITLE
+target and source study
+*Set the defaults for precision simulations
+DEFAULTS                                                              PRECISIO
+*Define the beam characteristics
+!@scale=1
+BEAM            -8.0                                                  PROTON
+*Define the beam position
+BEAMPOS                             -150
+GEOBEGIN                                                              COMBNAME
+    0    0          
+SPH blkhole    0 0 0 1000
+SPH void       0 0 0 800
+!@what.3=-(len/2)
+TRC trg        0 0 -8.5 0 0 $len $rad $rad
+RCC solenoid   0.0 0 -100.0 0 0 200.0 70.0
+RCC beamline   0.0 0 -199.5 0 0 599 30
+XYP center     0
+RCC wall       0 0 -200.0 0 0 600.0 80.0
+RCC det1       0 0 100.1 0 0 5 29.99
+RCC det2       0 0 200 0 0 5 29.99
+RCC det3       0 0 300 0 0 5 29.99
+RCC det4       0 0 394 0 0 4.9 29.99
+END
+BLCKHOLE     5 +blkhole -void
+VOID         5 +void -wall
+BFIELD       5 +solenoid -trg -beamline
+               | +solenoid +beamline -trg
+               | +beamline -solenoid -center -det1 -det2 -det3 -det4
+TRG          5 +trg
+DRIVER       5 +beamline +center -solenoid
+SOLENOID     5 +wall -solenoid -beamline
+DET1         5 +det1
+DET2         5 +det2
+DET3         5 +det3
+DET4         5 +det4
+END
+GEOEND
+MATERIAL           6                 1.7                              GRAPHITE
+MATERIAL          24                7.18                              CHROMIUM
+*Inconel-600
+MATERIAL                            8.43                              Inconel_
+COMPOUND        15.0  CHROMIUM       9.0      IRON      76.0    NICKELInconel_
+MAT-PROP                            78.0  GRAPHITE
+MAT-PROP        31.0                      GRAPHITE                    DPA-ENER
+STERNHEI       3.155     0.048    2.5387   0.20762    2.9532      0.14GRAPHITE
+ASSIGNMA    BLCKHOLE  BLCKHOLE
+ASSIGNMA         AIR      VOID
+ASSIGNMA      VACUUM    DRIVER
+ASSIGNMA      VACUUM    BFIELD                             1
+ASSIGNMA         AIR  SOLENOID                             1
+ASSIGNMA      VACUUM      DET1                             1
+ASSIGNMA      VACUUM      DET2                             1
+ASSIGNMA      VACUUM      DET3                             1
+ASSIGNMA      VACUUM      DET4                             1
+#if mat_inc
+ASSIGNMA    Inconel_       TRG                             1
+#else
+ASSIGNMA      NICKEL       TRG                             1
+#endif
+MGNCREAT         300                                                  FMGRID
+MGNCREAT                                        17        17        61 &
+MGNCREAT         -80       -80      -200        80        80       400 &&
+#if Bfield3
+#include ../../fieldmap/Bfield_flukaDatasets/B3L200R70_flukaGrid.inp
+#elif Bfield4
+#include ../../fieldmap/Bfield_flukaDatasets/B4L200R70_flukaGrid.inp
+#elif Bfield5
+#include ../../fieldmap/Bfield_flukaDatasets/B5L200R70_flukaGrid.inp
+#elif Bfield6
+#include ../../fieldmap/Bfield_flukaDatasets/B6L200R70_flukaGrid.inp
+#elif Bfield7
+#include ../../fieldmap/Bfield_flukaDatasets/B7L200R70_flukaGrid.inp
+#elif Bfield8
+#include ../../fieldmap/Bfield_flukaDatasets/B8L200R70_flukaGrid.inp
+#elif Bfield9
+#include ../../fieldmap/Bfield_flukaDatasets/B9L200R70_flukaGrid.inp
+#elif Bfield10
+#include ../../fieldmap/Bfield_flukaDatasets/B10L200R70_flukaGrid.inp
+#endif
+MGNFIELD                                       TRG                    FMGRID
+MGNFIELD                                    BFIELD                    FMGRID
+MGNFIELD                                  SOLENOID                    FMGRID
+MGNFIELD                                      DET1                    FMGRID
+MGNFIELD                                      DET2                    FMGRID
+MGNFIELD                                      DET3                    FMGRID
+MGNFIELD                                      DET4                    FMGRID
+#if discard
+DISCARD      NEUTRON  ANEUTRON    PHOTON  ELECTRON  POSITRON
+#endif
+#if track
+USERDUMP         100        31         0                              dump
+#else
+USERDUMP         100        32         0         1                    score
+*USERWEIG                               3
+*## Score hadrons that are produced in the target
+*USRYIELD         201     PION+       -33        -1        -2      0.01pip_prod
+*USRYIELD          10         0        60       100         0      2803 &
+*USRYIELD         201     PION-       -33        -1        -2      0.01pin_prod
+*USRYIELD          10         0        60       100         0      2803 &
+*USRYIELD         201     MUON+       -33        -1        -2      0.01mup_prod
+*USRYIELD          10         0        60       100         0      2803 &
+*USRYIELD         201     MUON-       -33        -1        -2      0.01mun_prod
+*USRYIELD          10         0        60       100         0      2803 &
+*## Score hadrons that escape the target
+*USRBDX             1  ALL-PART       -35       TRG    BFIELD         1escSco
+*USRBDX            15         0        60                               &
+*USRBDX             1  ALL-PART       -35      DET1    BFIELD         1det1in
+*USRBDX            15         0        60                               &
+*USRBDX             1  ALL-PART       -35      DET1  SOLENOID         1det1out
+*USRBDX            15         0        60                               &
+*USRBDX             1     MUON+       -35       TRG      VOID         1aro_mup
+*USRBDX            10         0        60                               &
+*USRBDX             1     MUON-       -35       TRG      VOID         1aro_mun
+*USRBDX            10         0        60                               &
+*USRBDX             1    PIZERO       -34       TRG   TRG_ARO         1aro_piz
+*USRBDX            10         0        60                               &
+*USRBIN            10     PION+       -21        70        70       100bin
+*USRBIN           -70       -70      -100       140       140       200 &
+#endif
+*..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
+*Set the random number seed
+RANDOMIZ         1.0
+#if track
+*Set the number of primary histories to be simulated in the run
+START            100
+#else
+*Set the number of primary histories to be simulated in the run
+START         100000
+#endif
+STOP

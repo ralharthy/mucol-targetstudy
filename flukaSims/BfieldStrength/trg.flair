@@ -1,0 +1,316 @@
+# flair project file
+Version: 300
+Mode: fluka
+md5: 2e7638b925a9a66d71eea73dde0eace3
+Input:
+#define Bfield
+#define Bfield03
+#define Bfield04
+#define Bfield05
+#define Bfield06
+#define Bfield07
+#define Bfield08
+#define Bfield09
+#define Bfield10
+TITLE
+	Capture System
+*Set the defaults for precision simulations
+DEFAULTS PRECISIO
+*Define the beam characteristics
+BEAM PROTON -8.0
+	@select=8
+	scale=3.5
+*Define the beam position
+BEAMPOS ,,, -150
+GEOBEGIN COMBNAME
+SPH blkbody 0 0 0 1250
+	@select=8
+SPH void 0 0 0 700.0
+	@select=8
+ZEC out_sol 0 0 80.0 80
+ZEC in_sol 0 0 70.0 70
+ZEC beamline 0 0 30.0 30
+XYP wall1 -200.0
+XYP wall2 -100.0
+XYP wall3 100.0
+XYP wall4 400.0
+XYP det2 200.0
+XYP det3 300.0
+RCC target 0 0 -7.5 0 0 15 0.15
+	@select=8
+END
+REGION BLKBODY
+	+blkbody -void
+REGION VOID
+	+void +wall1
+	| +void -wall4
+	| +void -out_sol
+REGION OUT
+	+out_sol +wall4 -in_sol -wall1
+	| +in_sol +wall2 -beamline -wall1
+	| +in_sol +wall4 -beamline -wall3
+REGION DRIVER
+	+beamline +wall2 -wall1
+REGION SOLENOID
+	+in_sol +wall3 -wall2 -target
+REGION BEAML1
+	+beamline +det2 -wall3
+REGION BEAML2
+	+beamline +det3 -det2
+REGION BEAML3
+	+beamline +wall4 -det3
+REGION TRG
+	+target
+END
+GEOEND
+MATERIAL CHROMIUM 24,, 7.18
+*Inconel-600
+MATERIAL Inconel_,,, 8.43
+COMPOUND Inconel_ 15.0 CHROMIUM 9.0 IRON 76.0 NICKEL
+ASSIGNMA , BLCKHOLE BLKBODY
+ASSIGNMA , AIR VOID
+ASSIGNMA , AIR OUT,,, 1
+ASSIGNMA , VACUUM DRIVER,,, 1
+ASSIGNMA , VACUUM SOLENOID,,, 1
+ASSIGNMA , VACUUM BEAML1,,, 1
+ASSIGNMA , VACUUM BEAML2,,, 1
+ASSIGNMA , VACUUM BEAML3,,, 1
+ASSIGNMA , Inconel_ TRG,,, 1
+#if Bfield
+MGNCREAT FMGRID 300,,,,,,,,, 17 17 61 -80 -80 -200 80 80 400
+#if Bfield03
+#include ../../fieldmap/Bfield_flukaDatasets/B3L150R70_flukaGrid.inp
+#elif Bfield04
+#include ../../fieldmap/Bfield_flukaDatasets/B4L150R70_flukaGrid.inp
+#elif Bfield05
+#include ../../fieldmap/Bfield_flukaDatasets/B5L150R70_flukaGrid.inp
+#elif Bfield06
+#include ../../fieldmap/Bfield_flukaDatasets/B6L150R70_flukaGrid.inp
+#elif Bfield07
+#include ../../fieldmap/Bfield_flukaDatasets/B7L150R70_flukaGrid.inp
+#elif Bfield08
+#include ../../fieldmap/Bfield_flukaDatasets/B8L150R70_flukaGrid.inp
+#elif Bfield09
+#include ../../fieldmap/Bfield_flukaDatasets/B9L150R70_flukaGrid.inp
+#elif Bfield10
+#include ../../fieldmap/Bfield_flukaDatasets/B10L150R70_flukaGrid.inp
+#endif
+MGNFIELD FMGRID,,,, OUT
+MGNFIELD FMGRID,,,, DRIVER
+MGNFIELD FMGRID,,,, SOLENOID
+MGNFIELD FMGRID,,,, BEAML1
+MGNFIELD FMGRID,,,, BEAML2
+MGNFIELD FMGRID,,,, BEAML3
+MGNFIELD FMGRID,,,, OUT
+#else
+MGNFIELD ,,,,,, 0
+#endif
+USERDUMP dump 100 21 0 1
+*..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
+*Set the random number seed
+RANDOMIZ , 1.0
+*Set the number of primary histories to be simulated in the run
+START
+STOP
+EndInput
+
+Page: Input
+plotengine: Gnuplot
+Compile: /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	source: ['exe2/mgdraw.f']
+End
+
+# Run information
+Run: <default>
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	open:     1
+End
+Run: test/test
+	Title:    test
+	Rnd:      1000
+	Start:    10000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	open:     1
+End
+Run: test/test2
+	Title:    test
+	Start:    1000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	StartRun: 1788469176.2210777
+	open:     1
+End
+Run: test/test3
+	Title:    test
+	Start:    1000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	StartRun: 1788469594.9191806
+	open:     1
+End
+Run: TrgCenter/run00_01
+	Title:    run
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	StartRun: 1788323957.8072917
+	open:     1
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+	Title:    run
+	Rnd:      3000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+End
+Run: run00_01
+	Rnd:      3001
+	Last:     1
+	Status:   3
+	StartRun: 1788324524.1903043
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_02
+	Rnd:      3002
+	Last:     1
+	Status:   3
+	StartRun: 1788324045.7499108
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_03
+	Rnd:      3003
+	Last:     1
+	Status:   3
+	StartRun: 1788313239.0788226
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_04
+	Rnd:      3004
+	Last:     1
+	Status:   3
+	StartRun: 1788324053.8886898
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_05
+	Rnd:      3005
+	Last:     1
+	Status:   3
+	StartRun: 1788313241.0462017
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_06
+	Rnd:      3006
+	Last:     1
+	Status:   3
+	StartRun: 1788324060.1387706
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_07
+	Rnd:      3007
+	Last:     1
+	Status:   3
+	StartRun: 1788324070.6854763
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_08
+	Rnd:      3008
+	Last:     1
+	Status:   3
+	StartRun: 1788324079.2950025
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_09
+	Rnd:      3009
+	Last:     1
+	Status:   3
+	StartRun: 1788324085.6136115
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+Run: run00_10
+	Rnd:      3010
+	Last:     1
+	Status:   3
+	StartRun: 1788313244.8293996
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run00
+End
+
+# Plots information
+Plot: Red
+	Type: Geometry
+	basisu: 0 0 1
+	basisv: 1 0 0
+	cblabel: B-field strength [T]
+	cbsize: 12
+	cbtics: 1
+	cbticssize: 11
+	commands: set cblabel offset 2,0
+	coord: Z-X
+	extends: 358.318 268.7385
+	grid: 0
+	group: Geometry
+	layer: Media
+	nv: 100
+	open: 1
+	origin: -11.2861 0 97.1403
+	ratio: 0.26666666666666666
+	title: Magnetic Field - 5T
+	titlesize: 12
+	vectscale: 8
+	xlabel: z [cm]
+	xsize: 12
+	xticssize: 11
+	ylabel: x [cm]
+	ysize: 12
+	yticssize: 11
+End
+Plot: Green
+	Type: Geometry
+	basisu: 0.836516 0.0173377 0.547668
+	basisv: 0.224144 0.901221 -0.370891
+	extends: 5.408789293239539 4.056591969929655
+	group: Geometry
+	layer: 3D
+	open: 1
+	origin: -1.63859 1.18048 -1.77394
+End
+Plot: Blue
+	Type: Geometry
+	basisu: 0 0 1
+	coord: Z-Y
+	extends: 429.98169599999943 322.48627199999953
+	group: Geometry
+	layer: Media
+	open: 1
+	origin: 0 -0.552632 58.3533
+End
+Plot: Magenta
+	Type: Geometry
+	cblabel: B-field Strength [T]
+	cbsize: 12
+	cbtics: 1
+	cbticssize: 11
+	commands: set cblabel offset 2,0
+	coord: X-Y
+	extends: 80.0 60.0
+	grid: 0
+	group: Geometry
+	layer: Media
+	nu: 80
+	nv: 80
+	open: 1
+	ratio: 1.0
+	title: Radial Magnetic field - 5T
+	titlesize: 12
+	vectscale: 4
+	xlabel: x [cm]
+	xsize: 12
+	xticssize: 11
+	ylabel: y [cm]
+	ysize: 12
+	yticssize: 11
+End

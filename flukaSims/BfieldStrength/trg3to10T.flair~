@@ -1,0 +1,1222 @@
+# flair project file
+Version: 300
+Mode: fluka
+md5: fa3826cff253e042728838cd2129e14b
+Input:
+#define trg_len 15
+*********** Choose target material - default Nickel
+!#define mat_tung
+#define mat_inc
+#if mat_tung
+#define len 10
+#elif mat_inc
+#define len 17
+#else
+#define len 15
+#endif
+*********** radius is constant
+#define rad 0.15
+*********** Turn Bfield on/off
+#define Bfield3
+#define Bfield4
+#define Bfield5
+#define Bfield6
+#define Bfield7
+#define Bfield8
+#define Bfield9
+#define Bfield10
+*********** This will discard : PHOTON, ELECTRON, POSITRON, NEUTRON, ANEUTRON
+!#define discard
+*********** This will turn on tracking and turn off scoring - defualt off
+!#define track
+TITLE
+	target and source study
+*Set the defaults for precision simulations
+DEFAULTS PRECISIO
+*Define the beam characteristics
+BEAM PROTON -8.0
+	@select=8
+	scale=1
+*Define the beam position
+BEAMPOS ,,, -150
+GEOBEGIN COMBNAME
+SPH blkhole 0 0 0 1000
+	@select=8
+SPH void 0 0 0 800
+	@select=8
+TRC trg 0 0 =-(len/2) 0 0 $len $rad $rad
+	@select=8
+RCC solenoid,, 0 -100.0 0 0 200.0 70.0
+	@select=8
+RCC beamline,, 0 -199.5 0 0 599 30
+	@select=8
+XYP center 0
+	@select=8
+RCC wall 0 0 -200.0 0 0 600.0 80.0
+	@select=8
+RCC det1 0 0 100.1 0 0 5 29.99
+	@select=8
+RCC det2 0 0 200 0 0 5 29.99
+	@select=8
+RCC det3 0 0 300 0 0 5 29.99
+	@select=9
+RCC det4 0 0 394 0 0 4.9 29.99
+	@select=8
+END
+REGION BLCKHOLE
+	+blkhole -void
+REGION VOID
+	+void -wall
+REGION BFIELD
+	+solenoid -trg -beamline
+	| +solenoid +beamline -trg
+	| +beamline -solenoid -center -det1 -det2 -det3 -det4
+REGION TRG
+	+trg
+REGION DRIVER
+	+beamline +center -solenoid
+REGION SOLENOID
+	+wall -solenoid -beamline
+REGION DET1
+	+det1
+REGION DET2
+	+det2
+REGION DET3
+	+det3
+REGION DET4
+	+det4
+END
+GEOEND
+MATERIAL GRAPHITE 6,, 1.7
+MATERIAL CHROMIUM 24,, 7.18
+*Inconel-600
+MATERIAL Inconel_,,, 8.43
+COMPOUND Inconel_ 15.0 CHROMIUM 9.0 IRON 76.0 NICKEL
+MAT-PROP ,,, 78.0 GRAPHITE
+MAT-PROP DPA-ENER 31.0,,, GRAPHITE
+STERNHEI GRAPHITE 3.155 0.048 2.5387 0.20762 2.9532 0.14
+ASSIGNMA , BLCKHOLE BLCKHOLE
+ASSIGNMA , AIR VOID
+ASSIGNMA , VACUUM DRIVER
+ASSIGNMA , VACUUM BFIELD,,, 1
+ASSIGNMA , AIR SOLENOID,,, 1
+ASSIGNMA , VACUUM DET1,,, 1
+ASSIGNMA , VACUUM DET2,,, 1
+ASSIGNMA , VACUUM DET3,,, 1
+ASSIGNMA , VACUUM DET4,,, 1
+#if mat_inc
+ASSIGNMA , Inconel_ TRG,,, 1
+#else
+ASSIGNMA , NICKEL TRG,,, 1
+#endif
+MGNCREAT FMGRID 300,,,,,,,,, 17 17 61 -80 -80 -200 80 80 400
+#if Bfield3
+#include ../../fieldmap/Bfield_flukaDatasets/B3L200R70_flukaGrid.inp
+#elif Bfield4
+#include ../../fieldmap/Bfield_flukaDatasets/B4L200R70_flukaGrid.inp
+#elif Bfield5
+#include ../../fieldmap/Bfield_flukaDatasets/B5L200R70_flukaGrid.inp
+#elif Bfield6
+#include ../../fieldmap/Bfield_flukaDatasets/B6L200R70_flukaGrid.inp
+#elif Bfield7
+#include ../../fieldmap/Bfield_flukaDatasets/B7L200R70_flukaGrid.inp
+#elif Bfield8
+#include ../../fieldmap/Bfield_flukaDatasets/B8L200R70_flukaGrid.inp
+#elif Bfield9
+#include ../../fieldmap/Bfield_flukaDatasets/B9L200R70_flukaGrid.inp
+#elif Bfield10
+#include ../../fieldmap/Bfield_flukaDatasets/B10L200R70_flukaGrid.inp
+#endif
+MGNFIELD FMGRID,,,, TRG
+MGNFIELD FMGRID,,,, BFIELD
+MGNFIELD FMGRID,,,, SOLENOID
+MGNFIELD FMGRID,,,, DET1
+MGNFIELD FMGRID,,,, DET2
+MGNFIELD FMGRID,,,, DET3
+MGNFIELD FMGRID,,,, DET4
+#if discard
+DISCARD , NEUTRON ANEUTRON PHOTON ELECTRON POSITRON
+#endif
+#if track
+USERDUMP dump 100 31 0
+#else
+USERDUMP score 100 32 0 1
+!USERWEIG ,,, 3
+*## Score hadrons that are produced in the target
+!USRYIELD pip_prod 201 PION+ -33 -1 -2 0.01 10 0 60 100 0 2803
+!USRYIELD pin_prod 201 PION- -33 -1 -2 0.01 10 0 60 100 0 2803
+!USRYIELD mup_prod 201 MUON+ -33 -1 -2 0.01 10 0 60 100 0 2803
+!USRYIELD mun_prod 201 MUON- -33 -1 -2 0.01 10 0 60 100 0 2803
+*## Score hadrons that escape the target
+!USRBDX escSco 1 ALL-PART -35 TRG BFIELD 1 15 0 60
+!USRBDX det1in 1 ALL-PART -35 DET1 BFIELD 1 15 0 60
+!USRBDX det1out 1 ALL-PART -35 DET1 SOLENOID 1 15 0 60
+!USRBDX aro_mup 1 MUON+ -35 TRG VOID 1 10 0 60
+!USRBDX aro_mun 1 MUON- -35 TRG VOID 1 10 0 60
+!USRBDX aro_piz 1 PIZERO -34 TRG TRG_ARO 1 10 0 60
+!USRBIN bin 10 PION+ -21 70 70 100 -70 -70 -100 140 140 200
+#endif
+*..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
+*Set the random number seed
+RANDOMIZ , 1.0
+#if track
+*Set the number of primary histories to be simulated in the run
+START , 100
+#else
+*Set the number of primary histories to be simulated in the run
+START , 100000
+#endif
+STOP
+EndInput
+
+Page: Input
+plotengine: Gnuplot
+Compile: /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	link: ldpmqmd
+	source: ['exe2/mgdraw.f']
+End
+
+# Run information
+Run: <default>
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	open:     1
+End
+Run: tracks/Bfield03
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield3
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430583.9677844
+End
+Run: tracks/Bfield04
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield4
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430584.2572644
+End
+Run: tracks/Bfield05
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield5
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430584.7277164
+End
+Run: tracks/Bfield06
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield6
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430585.048493
+End
+Run: tracks/Bfield07
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield7
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430585.4409313
+End
+Run: tracks/Bfield08
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield8
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430585.7372885
+End
+Run: tracks/Bfield09
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield9
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430586.086719
+End
+Run: tracks/Bfield10
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield10
+	Define:   track
+	Start:    50.0
+	Exe:      <flukadpm>
+	Last:     1
+	Status:   3
+	StartRun: 1783430586.3873403
+End
+Run: pibeam5T/run
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield5
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	StartRun: 1784316688.2384865
+End
+Run: test/test
+	Title:    test
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield3
+	Start:    50.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	StartRun: 1788138761.3372726
+End
+Run: TrgCenter/run03
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield3
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1788192466.2454112
+	open:     1
+End
+Run: TrgCenter/run04
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield4
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1788192466.6732583
+	open:     1
+End
+Run: TrgCenter/run05
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield5
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1788192467.2784016
+	open:     1
+End
+Run: TrgCenter/run06
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield6
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1788192467.9496765
+	open:     1
+End
+Run: TrgCenter/run07
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield7
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1788192468.5572646
+	open:     1
+End
+Run: TrgCenter/run08
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield8
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1788192469.1947315
+	open:     1
+End
+Run: TrgCenter/run09
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield9
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1788192470.1866221
+	open:     1
+End
+Run: TrgCenter/run10
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield10
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	StartRun: 1788192470.8863797
+	open:     1
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield3
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	open:     1
+End
+Run: run03_01
+	Rnd:      1001
+	Last:     1
+	Status:   3
+	StartRun: 1788193285.5436387
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_02
+	Rnd:      1012
+	Last:     1
+	Status:   3
+	StartRun: 1788195019.952589
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_03
+	Rnd:      1033
+	Last:     1
+	Status:   3
+	StartRun: 1788201603.431931
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_04
+	Rnd:      1004
+	Last:     1
+	Status:   3
+	StartRun: 1788196595.792883
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_05
+	Rnd:      1005
+	Last:     1
+	Status:   3
+	StartRun: 1788196596.4437015
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_06
+	Rnd:      1006
+	Last:     1
+	Status:   3
+	StartRun: 1788196597.1553516
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_07
+	Rnd:      1017
+	Last:     1
+	Status:   3
+	StartRun: 1788201436.1428158
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_08
+	Rnd:      1018
+	Last:     1
+	Status:   3
+	StartRun: 1788201443.4345665
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_09
+	Rnd:      1009
+	Last:     1
+	Status:   3
+	StartRun: 1788199353.7700508
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: run03_10
+	Rnd:      1010
+	Last:     1
+	Status:   3
+	StartRun: 1788199354.284128
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run03
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield4
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	open:     1
+End
+Run: run04_01
+	Rnd:      1001
+	Last:     1
+	Status:   3
+	StartRun: 1788203745.15023
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_02
+	Rnd:      1002
+	Last:     1
+	Status:   3
+	StartRun: 1788203745.6880407
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_03
+	Rnd:      1033
+	Last:     1
+	Status:   3
+	StartRun: 1788206074.6871562
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_04
+	Rnd:      1034
+	Last:     1
+	Status:   3
+	StartRun: 1788213421.7346575
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_05
+	Rnd:      1005
+	Last:     1
+	Status:   3
+	StartRun: 1788203747.7708325
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_06
+	Rnd:      1016
+	Last:     1
+	Status:   3
+	StartRun: 1788206075.3948832
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_07
+	Rnd:      1017
+	Last:     1
+	Status:   3
+	StartRun: 1788203749.5187907
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_08
+	Rnd:      1018
+	Last:     1
+	Status:   3
+	StartRun: 1788203750.2508538
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_09
+	Rnd:      1009
+	Last:     1
+	Status:   3
+	StartRun: 1788206116.0929255
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: run04_10
+	Rnd:      1410
+	Last:     1
+	Status:   3
+	StartRun: 1788215147.2371905
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run04
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield5
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	open:     1
+End
+Run: run05_01
+	Rnd:      1001
+	Last:     1
+	Status:   3
+	StartRun: 1788206246.6901515
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_02
+	Rnd:      1022
+	Last:     1
+	Status:   3
+	StartRun: 1788213460.0940878
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_03
+	Rnd:      1003
+	Last:     1
+	Status:   3
+	StartRun: 1788206249.2106855
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_04
+	Rnd:      1014
+	Last:     1
+	Status:   3
+	StartRun: 1788211423.2562816
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_05
+	Rnd:      1015
+	Last:     1
+	Status:   3
+	StartRun: 1788211442.9722562
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_06
+	Rnd:      1016
+	Last:     1
+	Status:   3
+	StartRun: 1788211459.0471315
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_07
+	Rnd:      1007
+	Last:     1
+	Status:   3
+	StartRun: 1788208382.7872128
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_08
+	Rnd:      1008
+	Last:     1
+	Status:   3
+	StartRun: 1788208383.82682
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_09
+	Rnd:      1019
+	Last:     1
+	Status:   3
+	StartRun: 1788211473.355618
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: run05_10
+	Rnd:      1010
+	Last:     1
+	Status:   3
+	StartRun: 1788208570.0459468
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run05
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield6
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	open:     1
+End
+Run: run06_01
+	Rnd:      1001
+	Last:     1
+	Status:   3
+	StartRun: 1788208613.3373709
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_02
+	Rnd:      1002
+	Last:     1
+	Status:   3
+	StartRun: 1788208614.4424903
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_03
+	Rnd:      1003
+	Last:     1
+	Status:   3
+	StartRun: 1788211481.8064423
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_04
+	Rnd:      1014
+	Last:     1
+	Status:   3
+	StartRun: 1788214193.2659817
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_05
+	Rnd:      1015
+	Last:     1
+	Status:   3
+	StartRun: 1788213531.5853372
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_06
+	Rnd:      1016
+	Last:     1
+	Status:   3
+	StartRun: 1788220264.9386876
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_07
+	Rnd:      1007
+	Last:     1
+	Status:   3
+	StartRun: 1788217506.71573
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_08
+	Rnd:      1008
+	Last:     1
+	Status:   3
+	StartRun: 1788217507.4341507
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_09
+	Rnd:      1009
+	Last:     1
+	Status:   3
+	StartRun: 1788217508.320605
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: run06_10
+	Rnd:      1210
+	Last:     1
+	Status:   3
+	StartRun: 1788220290.0936341
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run06
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield7
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	open:     1
+End
+Run: run07_01
+	Rnd:      1021
+	Last:     1
+	Status:   3
+	StartRun: 1788221161.6423976
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_02
+	Rnd:      1042
+	Last:     1
+	Status:   3
+	StartRun: 1788222383.4998815
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_03
+	Rnd:      1023
+	Last:     1
+	Status:   3
+	StartRun: 1788223108.420533
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_04
+	Rnd:      1004
+	Last:     1
+	Status:   3
+	StartRun: 1788217519.6828132
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_05
+	Rnd:      1005
+	Last:     1
+	Status:   3
+	StartRun: 1788217520.4747777
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_06
+	Rnd:      1006
+	Last:     1
+	Status:   3
+	StartRun: 1788220932.161054
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_07
+	Rnd:      1007
+	Last:     1
+	Status:   3
+	StartRun: 1788220933.3493152
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_08
+	Rnd:      1008
+	Last:     1
+	Status:   3
+	StartRun: 1788220934.8989577
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_09
+	Rnd:      1009
+	Last:     1
+	Status:   3
+	StartRun: 1788220936.3681176
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: run07_10
+	Rnd:      1110
+	Last:     1
+	Status:   3
+	StartRun: 1788221981.7603116
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run07
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield8
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	open:     1
+End
+Run: run08_01
+	Rnd:      1011
+	Last:     1
+	Status:   3
+	StartRun: 1788234098.5059748
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_02
+	Rnd:      1022
+	Last:     1
+	Status:   3
+	StartRun: 1788237189.5902822
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_03
+	Rnd:      1003
+	Last:     1
+	Status:   3
+	StartRun: 1788224275.7311516
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_04
+	Rnd:      1024
+	Last:     1
+	Status:   3
+	StartRun: 1788229738.260032
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_05
+	Rnd:      1015
+	Last:     1
+	Status:   3
+	StartRun: 1788225200.8438256
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_06
+	Rnd:      1006
+	Last:     1
+	Status:   3
+	StartRun: 1788224279.730793
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_07
+	Rnd:      1007
+	Last:     1
+	Status:   3
+	StartRun: 1788226447.3871593
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_08
+	Rnd:      1008
+	Last:     1
+	Status:   3
+	StartRun: 1788226448.6557763
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_09
+	Rnd:      1009
+	Last:     1
+	Status:   3
+	StartRun: 1788226450.164165
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: run08_10
+	Rnd:      1010
+	Last:     1
+	Status:   3
+	StartRun: 1788226451.560325
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run08
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield9
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	open:     1
+End
+Run: run09_01
+	Rnd:      1011
+	Last:     1
+	Status:   3
+	StartRun: 1788231166.757372
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_02
+	Rnd:      1002
+	Last:     1
+	Status:   3
+	StartRun: 1788228308.8151202
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_03
+	Rnd:      1013
+	Last:     1
+	Status:   3
+	StartRun: 1788229883.0013437
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_04
+	Rnd:      1034
+	Last:     1
+	Status:   3
+	StartRun: 1788237219.4675152
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_05
+	Rnd:      1015
+	Last:     1
+	Status:   3
+	StartRun: 1788231008.435464
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_06
+	Rnd:      1026
+	Last:     1
+	Status:   3
+	StartRun: 1788233602.4357898
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_07
+	Rnd:      1007
+	Last:     1
+	Status:   3
+	StartRun: 1788229937.3815258
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_08
+	Rnd:      1038
+	Last:     1
+	Status:   3
+	StartRun: 1788245270.9663436
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_09
+	Rnd:      1019
+	Last:     1
+	Status:   3
+	StartRun: 1788236074.883362
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: run09_10
+	Rnd:      1010
+	Last:     1
+	Status:   3
+	StartRun: 1788233205.2074335
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run09
+End
+Run: /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+	Title:    run
+	Define:   trg_len
+	Define:   mat_inc
+	Define:   rad
+	Define:   Bfield10
+	Rnd:      1000
+	Start:    100000.0
+	Exe:      /mnt/ceph/home/ralharth/fluka/mucol-targetstudy/flukaSims/BfieldStrength/exe2/fluka.x
+	Last:     1
+	Status:   3
+	open:     1
+End
+Run: run10_01
+	Rnd:      1021
+	Last:     1
+	Status:   3
+	StartRun: 1788242914.5173774
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_02
+	Rnd:      1012
+	Last:     1
+	Status:   3
+	StartRun: 1788237712.4013653
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_03
+	Rnd:      1043
+	Last:     1
+	Status:   3
+	StartRun: 1788243441.3866606
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_04
+	Rnd:      1004
+	Last:     1
+	Status:   3
+	StartRun: 1788237319.6122503
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_05
+	Rnd:      1015
+	Last:     1
+	Status:   3
+	StartRun: 1788240455.3544645
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_06
+	Rnd:      1026
+	Last:     1
+	Status:   3
+	StartRun: 1788246553.5546534
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_07
+	Rnd:      1007
+	Last:     1
+	Status:   3
+	StartRun: 1788241414.8421228
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_08
+	Rnd:      1008
+	Last:     1
+	Status:   3
+	StartRun: 1788241416.7016695
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_09
+	Rnd:      1009
+	Last:     1
+	Status:   3
+	StartRun: 1788241418.4063752
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Run: run10_10
+	Rnd:      1110
+	Last:     1
+	Status:   3
+	StartRun: 1788241873.0212798
+	Parent:   /nfs_scratch/ralharth/mucol-targetstudy/flukaData/BfieldStrength/TrgCenter/run10
+End
+Geometry: Geometry
+	Layer: 3D
+		3D: 1
+		3D._visible: 1
+		3D.edgedetect: 1
+		Options.viewport: 0
+		Show: 0
+		Show.lattice: 1
+		Show.voxel: 1
+	End
+	Layer: traj_3d
+		3D: 1
+		3D._visible: 1
+		3D.edgedetect: 1
+		Options.viewport: 0
+		Show: 0
+		Show.lattice: 1
+		Show.voxel: 1
+		Userdump: 1
+		Userdump.PROTON: 1
+		Userdump._visible: 1
+		Userdump.file: trk_proton/trk001_dump
+	End
+	Layer: Bfield03
+		Userdump: 1
+		Userdump.PION+: 1
+		Userdump._visible: 1
+		Userdump.file: tracks/Bfield03001_dump
+		Userdump.n: 20
+	End
+	Layer: Bfield04
+		Userdump: 1
+		Userdump.PION+: 1
+		Userdump._visible: 1
+		Userdump.file: tracks/Bfield04001_dump
+		Userdump.n: 20
+	End
+	Layer: Bfield05
+		Userdump: 1
+		Userdump.PION+: 1
+		Userdump._visible: 1
+		Userdump.file: tracks/Bfield08001_dump
+		Userdump.n: 20
+	End
+End
+
+# Plots information
+Plot: Red
+	Type: Geometry
+	basisu: 0 0 1
+	basisv: 1 0 0
+	coord: Z-X
+	extends: 330.2259425279995 172.9036898472326
+	grid: 0
+	group: Geometry
+	index: 1
+	layer: Media
+	nu: 100
+	nv: 70
+	open: 1
+	origin: 5.99531 0 93.6591
+	ratio: 0.7
+	title: Magnetic field (5T)
+	vectscale: 4
+	xlabel: z [cm]
+	ylabel: x [cm]
+End
+Plot: Green
+	Type: Geometry
+	basisu: 4.36113e-07 0.707107 -0.707107
+	basisv: 0.816497 -0.408248 -0.408248
+	extends: 174.18239999999994 91.33955121951217
+	grid: 0
+	group: Geometry
+	index: 2
+	layer: Media
+	nu: 70
+	nv: 70
+	open: 1
+	origin: 3.37145 -16.2846 12.9131
+	title: Magnetic field (3T)
+	vectscale: 4
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: Blue
+	Type: Geometry
+	basisu: 0 0 1
+	coord: Z-Y
+	extends: 429.98169599999983 224.4805505753424
+	group: Geometry
+	layer: Bfield05
+	open: 1
+	origin: 0 -37.1515 78.112
+End
+Plot: Magenta
+	Type: Geometry
+	coord: X-Y
+	extends: 70.0 36.600609756097555
+	grid: 0
+	group: Geometry
+	index: 3
+	layer: Media
+	nu: 100
+	nv: 100
+	open: 1
+	title: Magnetic field (3T)
+	vectscale: 4
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: test/test_21_plot
+	Type: USRBIN
+	cblog: 1
+	cbtics: 1
+	datafile: test/test_21.bnn
+	grid: 0
+	group: test/test
+	hist: 2D Projection
+	int: 206.71972052543936
+	max: 2.37863022E-03
+	min: 3.64751140E-09
+	open: 1
+	proj: Y
+	ratio: 0.7
+	title: USRBIN test/test 21
+End
+Plot: test/test_33_plot
+	Type: USR-1D
+	file.0: test/test_33_tab.lis
+	group: test/test
+	lc.0: red
+	lw.0: 2
+	name.0: Detector 1
+	ndetectors: 1
+	open: 1
+	title: USR-1D test/test 33
+	x.0: 2
+	xlog: 1
+	y.0: 0
+	ylog: 1
+End
