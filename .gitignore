@@ -21,3 +21,9 @@ myNotes.txt
 
 # ignore FLUKA's jargon files
 flukaSims/BfieldStrength/*/
+
+# Keep exe and exe2
+!flukaSims/BfieldStrength/exe/
+!flukaSims/BfieldStrength/exe2/
+!flukaSims/BfieldStrength/exe/**
+!flukaSims/BfieldStrength/exe2/**
