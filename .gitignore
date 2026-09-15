@@ -22,8 +22,16 @@ myNotes.txt
 # ignore FLUKA's jargon files
 flukaSims/BfieldStrength/*/
 
-# Keep exe and exe2
+# Keep exe/ and exe2/
 !flukaSims/BfieldStrength/exe/
 !flukaSims/BfieldStrength/exe2/
-!flukaSims/BfieldStrength/exe/**
-!flukaSims/BfieldStrength/exe2/**
+
+# Ignore everything inside them
+flukaSims/BfieldStrength/exe/*
+flukaSims/BfieldStrength/exe2/*
+
+# But keep .f files
+!flukaSims/BfieldStrength/exe/*.f
+!flukaSims/BfieldStrength/exe/Makefile
+!flukaSims/BfieldStrength/exe2/*.f
+!flukaSims/BfieldStrength/exe2/Makefile
