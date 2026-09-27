@@ -28,4 +28,4 @@ place WorldSolenoid z=0
 # Uncomment the printfield line that you wnat to use
 # Naming convention: B*L*R*_mapType.txt (* in cm)
 printfield type=grid file=Bfield_g4blDatasets/B2L150R70_fmGrid.txt X0=-800 Y0=-800 Z0=-2000 nX=17 nY=17 nZ=61 dX=100 dY=100 dZ=100
-printfield type=cylinder file=Bfield_g4blDatasets/B2L150R70_fmCylinder.txt Z0=-4000 nR=5 dR=5 nZ=1601 dZ=5
+printfield type=cylinder file=Bfield_g4blDatasets/B2L150R70_fmCylinder.txt Z0=-4000 nR=9 dR=10 nZ=81 dZ=100
