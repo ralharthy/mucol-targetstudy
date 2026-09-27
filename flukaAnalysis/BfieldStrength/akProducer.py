@@ -13,6 +13,7 @@ if len(sys.argv) < 1:
 Bfield = f"{int(sys.argv[1]):02d}"
 
 locations = ["esc", "prod", "det1", "det2", "det3", "det4"]
+
 cols = [
     "id", "energy", "p",
     "x", "y", "z",
@@ -20,6 +21,7 @@ cols = [
     "time", "gen", "event", 
     "Mother", "ICODE"
 ]
+
 meta = {
     "beamEnergy": 8,
     "nPrimaries": 100_000 * config.spawn,

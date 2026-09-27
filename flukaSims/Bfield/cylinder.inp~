@@ -1,0 +1,80 @@
+#define Bfield
+#define Bfield03
+!#define Bfield04
+!#define Bfield05
+!#define Bfield06
+!#define Bfield07
+!#define Bfield08
+!#define Bfield09
+!#define Bfield10
+TITLE
+Capture System
+*Set the defaults for precision simulations
+DEFAULTS                                                              PRECISIO
+*Define the beam characteristics
+!@scale=3.5
+BEAM            -8.0                                                  PROTON
+*Define the beam position
+BEAMPOS                             -150
+GEOBEGIN                                                              COMBNAME
+    0    0          
+SPH blkbody    0 0 0 1250
+SPH void       0 0 0 700.0
+ZEC out_sol    0 0 80.0 80
+ZEC in_sol     0 0 70.0 70
+ZEC beamline   0 0 30.0 30
+XYP wall1      -200.0
+XYP wall2      -75
+XYP wall3      75
+XYP wall4      375
+XYP det2       175
+XYP det3       275
+RCC target     0 0 -7.5 0 0 15 0.15
+END
+BLKBODY      5 +blkbody -void
+VOID         5 +void +wall1
+               | +void -wall4
+               | +void -out_sol
+OUT          5 +out_sol +wall4 -in_sol -wall1
+               | +in_sol +wall2 -beamline -wall1
+               | +in_sol +wall4 -beamline -wall3
+DRIVER       5 +beamline +wall2 -wall1
+SOLENOID     5 +in_sol +wall3 -wall2 -target
+BEAML1       5 +beamline +det2 -wall3
+BEAML2       5 +beamline +det3 -det2
+BEAML3       5 +beamline +wall4 -det3
+TRG          5 +target
+END
+GEOEND
+MATERIAL          24                7.18                              CHROMIUM
+*Inconel-600
+MATERIAL                            8.43                              Inconel_
+COMPOUND        15.0  CHROMIUM       9.0      IRON      76.0    NICKELInconel_
+ASSIGNMA    BLCKHOLE   BLKBODY
+ASSIGNMA         AIR      VOID
+ASSIGNMA         AIR       OUT
+ASSIGNMA      VACUUM    DRIVER
+ASSIGNMA      VACUUM  SOLENOID                             1
+ASSIGNMA      VACUUM    BEAML1
+ASSIGNMA      VACUUM    BEAML2
+ASSIGNMA      VACUUM    BEAML3
+ASSIGNMA    Inconel_       TRG                             1
+MGNCREAT         100                                                  FMCYLIN
+MGNCREAT                                         2         2           &
+MGNCREAT           0      -100                  70       100           &&
+MGNDATA            1         4         1         4         1         4FMCYLIN
+MGNDATA            1         4                                         &
+*MGNFIELD                                       OUT                    FMCYLIN
+*MGNFIELD                                    DRIVER                    FMCYLIN
+MGNFIELD                                  SOLENOID                    FMCYLIN
+MGNFIELD                                       TRG                    FMCYLIN
+*MGNFIELD                                    BEAML1                    FMCYLIN
+*MGNFIELD                                    BEAML2                    FMCYLIN
+*MGNFIELD                                    BEAML3                    FMCYLIN
+USERDUMP         100        21         0         1                    dump
+*..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
+*Set the random number seed
+RANDOMIZ         1.0
+*Set the number of primary histories to be simulated in the run
+START
+STOP
