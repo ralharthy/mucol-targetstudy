@@ -51,27 +51,27 @@ if filename_cylin is not None:
                 space = ' '
                 mgn = 'MGNDATA'
 
-                if i % 2 == 0:
-                    line = f"{mgn:<10}{Br:>10}{empty:>10}{Bz:>10}"
-                else:
-                    if i == 1:
-                        line = f"{Br:>10}{empty:>10}{Bz:>10}{name:<10}\n"
-                    elif i == 3:
-                        line = f"{Br:>10}{empty:>10}{Bz:>10} &\n"
-                    else:
-                        line = f"{Br:>10}{empty:>10}{Bz:>10} &&\n"        
-                
-                # if i % 3 == 0:
-                #     line = f"{mgn:<10}{Br:>10}{Bz:>10}"
-                # elif i % 3 == 1:
-                #     line = f"{Br:>10}{Bz:>10}"
+                # if i % 2 == 0:
+                #     line = f"{mgn:<10}{Br:>10}{empty:>10}{Bz:>10}"
                 # else:
-                #     if i == 2:
-                #         line = f"{Br:>10}{Bz:>10}{name:<10}\n"
-                #     elif i == 5:
-                #         line = f"{Br:>10}{Bz:>10} &\n"
+                #     if i == 1:
+                #         line = f"{Br:>10}{empty:>10}{Bz:>10}{name:<10}\n"
+                #     elif i == 3:
+                #         line = f"{Br:>10}{empty:>10}{Bz:>10} &\n"
                 #     else:
-                #         line = f"{Br:>10}{Bz:>10} &&\n"
+                #         line = f"{Br:>10}{empty:>10}{Bz:>10} &&\n"        
+                
+                if i % 3 == 0:
+                    line = f"{mgn:<10}{Br:>10}{Bz:>10}"
+                elif i % 3 == 1:
+                    line = f"{Br:>10}{Bz:>10}"
+                else:
+                    if i == 2:
+                        line = f"{Br:>10}{Bz:>10}{name:<10}\n"
+                    elif i == 5:
+                        line = f"{Br:>10}{Bz:>10} &\n"
+                    else:
+                        line = f"{Br:>10}{Bz:>10} &&\n"
                 
 
                 file.write(line)
@@ -167,27 +167,27 @@ if filename_grid is not None:
                 space = ' '
                 mgn = 'MGNDATA'
 
-                if i % 2 == 0:
-                    line = f"{mgn:<10}{Br:>10}{Bz:>10}{empty:>10}"
-                else:
-                    if i == 1:
-                        line = f"{Br:>10}{Bz:>10}{empty:>10}{name:<10}\n"
-                    elif i == 3:
-                        line = f"{Br:>10}{Bz:>10}{empty:>10} &\n"
-                    else:
-                        line = f"{Br:>10}{Bz:>10}{empty:>10} &&\n"        
-                
-                # if i % 3 == 0:
-                #     line = f"{mgn:<10}{Br:>10}{Bz:>10}"
-                # elif i % 3 == 1:
-                #     line = f"{Br:>10}{Bz:>10}"
+                # if i % 2 == 0:
+                #     line = f"{mgn:<10}{Br:>10}{Bz:>10}{empty:>10}"
                 # else:
-                #     if i == 2:
-                #         line = f"{Br:>10}{Bz:>10}{name:<10}\n"
-                #     elif i == 5:
-                #         line = f"{Br:>10}{Bz:>10} &\n"
+                #     if i == 1:
+                #         line = f"{Br:>10}{Bz:>10}{empty:>10}{name:<10}\n"
+                #     elif i == 3:
+                #         line = f"{Br:>10}{Bz:>10}{empty:>10} &\n"
                 #     else:
-                #         line = f"{Br:>10}{Bz:>10} &&\n"
+                #         line = f"{Br:>10}{Bz:>10}{empty:>10} &&\n"        
+                
+                if i % 3 == 0:
+                    line = f"{mgn:<10}{Br:>10}{Bz:>10}"
+                elif i % 3 == 1:
+                    line = f"{Br:>10}{Bz:>10}"
+                else:
+                    if i == 2:
+                        line = f"{Br:>10}{Bz:>10}{name:<10}\n"
+                    elif i == 5:
+                        line = f"{Br:>10}{Bz:>10} &\n"
+                    else:
+                        line = f"{Br:>10}{Bz:>10} &&\n"
                 
 
                 file.write(line)
