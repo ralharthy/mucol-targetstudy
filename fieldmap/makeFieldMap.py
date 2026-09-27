@@ -45,7 +45,7 @@ if filename_cylin is not None:
             for i in range(len(data_sorted)):
                 Br = fm.tenDigit(data_sorted['Br'].iloc[i])
                 Bz = fm.tenDigit(data_sorted['Bz'].iloc[i])
-                empty = 0.0
+                empty = ' '
 
                 name = 'FMCYLIN'
                 space = ' '
@@ -161,6 +161,7 @@ if filename_grid is not None:
             for i in range(len(data_sorted)):
                 Br = fm.tenDigit(data_sorted['Br'].iloc[i])
                 Bz = fm.tenDigit(data_sorted['Bz'].iloc[i])
+                empty = ' '
 
                 name = 'FMCYLIN'
                 space = ' '
