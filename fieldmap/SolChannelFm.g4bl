@@ -6,8 +6,9 @@ coil MuonCaptureCoilL150 innerRadius=700 outerRadius=750 length=1500 nSheets=200
 coil World innerRadius=1000 outerRadius=1100 length=20000 nSheets=1000 material=Cu
 
 # Generate a solenoid field using the coil
-# (A)   200cm   | 150cm    | 
-# 2T  =         | 
+# (A)   200cm   | 150cm    |
+# 1T  =         | 
+# 2T  =         | 44.1
 # 3T  = 58.8    | 66.3     |
 # 4T  = 78.5    | 88.2     |
 # 5T  = 98.68   | 110      | 
@@ -16,7 +17,7 @@ coil World innerRadius=1000 outerRadius=1100 length=20000 nSheets=1000 material=
 # 8T  = 157.2   | 177      |
 # 9T  = 176.8   | 199      |
 # 10T = 196.4   | 221      |
-solenoid MuonSolenoid coilName=MuonCaptureCoilL150 current=44.3 color=0,1,1,0.4
+solenoid MuonSolenoid coilName=MuonCaptureCoilL150 current=44 color=0,1,1,0.4
 solenoid WorldSolenoid coilName=World current=0 color=0,1,0.5,0.7
 
 # Place the solenoid over the tungsten target
