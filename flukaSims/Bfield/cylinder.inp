@@ -52,25 +52,24 @@ MATERIAL                            8.43                              Inconel_
 COMPOUND        15.0  CHROMIUM       9.0      IRON      76.0    NICKELInconel_
 ASSIGNMA    BLCKHOLE   BLKBODY
 ASSIGNMA         AIR      VOID
-ASSIGNMA         AIR       OUT
-ASSIGNMA      VACUUM    DRIVER
+ASSIGNMA         AIR       OUT                             1
+ASSIGNMA      VACUUM    DRIVER                             1
 ASSIGNMA      VACUUM  SOLENOID                             1
-ASSIGNMA      VACUUM    BEAML1
-ASSIGNMA      VACUUM    BEAML2
-ASSIGNMA      VACUUM    BEAML3
+ASSIGNMA      VACUUM    BEAML1                             1
+ASSIGNMA      VACUUM    BEAML2                             1
+ASSIGNMA      VACUUM    BEAML3                             1
 ASSIGNMA    Inconel_       TRG                             1
 MGNCREAT         100                                                  FMCYLIN
-MGNCREAT                                         2         2           &
-MGNCREAT           0      -100                  70       100           &&
-MGNDATA            1         4         1         4         1         4FMCYLIN
-MGNDATA            1         4                                         &
-*MGNFIELD                                       OUT                    FMCYLIN
-*MGNFIELD                                    DRIVER                    FMCYLIN
+MGNCREAT                                         9        81           &
+MGNCREAT           0      -400                  80       400           &&
+#include ../../fieldmap/Bfield_flukaDatasets/B2L150R70_flukaCylinder.inp
+MGNFIELD                                       OUT                    FMCYLIN
+MGNFIELD                                    DRIVER                    FMCYLIN
 MGNFIELD                                  SOLENOID                    FMCYLIN
 MGNFIELD                                       TRG                    FMCYLIN
-*MGNFIELD                                    BEAML1                    FMCYLIN
-*MGNFIELD                                    BEAML2                    FMCYLIN
-*MGNFIELD                                    BEAML3                    FMCYLIN
+MGNFIELD                                    BEAML1                    FMCYLIN
+MGNFIELD                                    BEAML2                    FMCYLIN
+MGNFIELD                                    BEAML3                    FMCYLIN
 USERDUMP         100        21         0         1                    dump
 *..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
 *Set the random number seed
