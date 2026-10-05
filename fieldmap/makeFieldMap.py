@@ -7,235 +7,140 @@ import subprocess as sp
 import mplhep as hep
 plt.style.use(hep.style.CMS)
 
-Bvalue = 2  # Tesla
+Bvalue = 10  # Tesla
+SolWidth = 200  # cm
+radius = 70  # cm
 
+# ----------------------------------------------
 # Config
-directory = 'Bfield_g4blDatasets/'
-filename_cylin = f'B{Bvalue}L150R70_fmCylinder.txt'
-filename_grid = f'B{Bvalue}L150R70_fmGrid.txt'
+# ----------------------------------------------
+g4bl_directory = 'g4blDatasets/'
+os.makedirs("g4blDatasets", exist_ok=True)
 g4blfile = "SolChannelFm.g4bl"
 
-if os.path.exists(directory + filename_cylin):
-    os.remove(directory + filename_cylin)
+g4bl_data = f'B{Bvalue}L{SolWidth}R{radius}_fmCylinder.txt'
 
-if os.path.exists(directory + filename_grid):
-    os.remove(directory + filename_grid)
+os.makedirs("flukaDatasets", exist_ok=True)
+output = "flukaDatasets/" + g4bl_data.replace('fm', 'fluka').replace('.txt', '.inp')
+os.makedirs("plots", exist_ok=True)
+plot_output = "plots/" + g4bl_data.replace('fm', 'fluka').replace('.txt', '.png')
+
+if os.path.exists(g4bl_directory + g4bl_data):
+    os.remove(g4bl_directory + g4bl_data)
+
+if os.path.exists(g4bl_directory + g4bl_data):
+    os.remove(g4bl_directory + g4bl_data)
 
 sp.run(
     ["bash", "-c", f"g4bl {g4blfile}"],
     check=True,
 )
-## --------------------------------------------
-## ------------ For cylinder data -------------
-## --------------------------------------------
-if filename_cylin is not None:
-    filename = directory + filename_cylin
-    coords_cylin = fm.getCoords(filename)
 
-    print(f'Processing file: {filename} with coordinates: {coords_cylin}')
-    data = fm.dataOrganizer(filename)
-    data_sorted = fm.sortData(data)
+# ----------------------------------------------
+# Upload g4bl data
+# ----------------------------------------------
+print(f"Processing g4bl output for:\n   B = {Bvalue} T\n   Solenoid width = {SolWidth} cm\n   Radius = {radius} cm")
+cols = ['r', 'z', 'Br', 'Bz']
+df = pd.read_csv(
+    g4bl_directory + g4bl_data,
+    sep=r"\s+",
+    names=cols,
+    skiprows=4
+)
 
-    os.makedirs("Bfield_flukaDatasets", exist_ok=True)
-    output = "Bfield_flukaDatasets/" + filename_cylin.replace('fm', 'fluka').replace('.txt', '.inp')
+# ----------------------------------------------
+# Helper function
+# ----------------------------------------------
+def tenDigit(n):
+    digit_count = len(str(n))
+    if digit_count > 9:
+        n = round(n,6)
+        return n
+    else:
+        return n
 
-    print(f'Printing into output file: {output}')
-    with open(output, "w+") as file:
-        if coords_cylin == 'rz':
-            for i in range(len(data_sorted)):
-                Br = fm.tenDigit(data_sorted['Br'].iloc[i])
-                Bz = fm.tenDigit(data_sorted['Bz'].iloc[i])
-                empty = ' '
+# ----------------------------------------------
+# Producing plot
+# ----------------------------------------------
+print(f"\nProducing plot...")
 
-                name = 'FMCYLIN'
-                space = ' '
-                mgn = 'MGNDATA'
+df = df.sort_values(by=['z', 'r']).reset_index(drop=True)
 
-                # if i % 2 == 0:
-                #     line = f"{mgn:<10}{Br:>10}{empty:>10}{Bz:>10}"
-                # else:
-                #     if i == 1:
-                #         line = f"{Br:>10}{empty:>10}{Bz:>10}{name:<10}\n"
-                #     elif i == 3:
-                #         line = f"{Br:>10}{empty:>10}{Bz:>10} &\n"
-                #     else:
-                #         line = f"{Br:>10}{empty:>10}{Bz:>10} &&\n"        
-                
-                if i % 3 == 0:
-                    line = f"{mgn:<10}{Br:>10}{Bz:>10}"
-                elif i % 3 == 1:
-                    line = f"{Br:>10}{Bz:>10}"
-                else:
-                    if i == 2:
-                        line = f"{Br:>10}{Bz:>10}{name:<10}\n"
-                    elif i == 5:
-                        line = f"{Br:>10}{Bz:>10} &\n"
-                    else:
-                        line = f"{Br:>10}{Bz:>10} &&\n"
-                
+Br = df['Br'].apply(tenDigit)
+Bz = df['Bz'].apply(tenDigit)
+z = df['z']
+r = df['r']
 
-                file.write(line)
+Bz_axis = Bz[r == 0]
+z_axis = z[r == 0]
+z_axis = z_axis / 10  # convert from mm to cm for plotting and reporting
+printMaxB = f'Maximum B-field on axis: {max(Bz_axis):.4f} T at z = {z_axis[Bz_axis.idxmax()]:.2f} cm'
+printMinB = f'Minimum B-field on axis: {min(Bz_axis):.4f} T at z = {z_axis[Bz_axis.idxmin()]:.2f} cm'
 
-        if coords_cylin == 'xyz':
-            for i in range(len(data_sorted)):
-                Bx = fm.tenDigit(data_sorted['Bx'].iloc[i])
-                By = fm.tenDigit(data_sorted['By'].iloc[i])
-                Bz = fm.tenDigit(data_sorted['Bz'].iloc[i])
+plt.figure(figsize=(7, 4.5))
+plt.plot(z_axis, Bz_axis, color='orange')
+plt.xlabel('z [cm]', fontsize=14)
+plt.ylabel('Bz [T]', fontsize=14)
+plt.tick_params(axis='both', labelsize=14)
+plt.title(f'Bz on beam axis for {Bvalue}T', fontsize=16)
+plt.savefig(plot_output, bbox_inches='tight')
+plt.close()
 
-                name = 'FMGRID'
-                space = ' '
-                mgn = 'MGNDATA'        
-                
-                if i % 2 == 0:
-                    line = f"{mgn:<10}{Bx:>10}{By:>10}{Bz:>10}"
-                else:
-                    if i == 1:
-                        line = f"{Bx:>10}{By:>10}{Bz:>10}{name:<10}\n"
-                    elif i == 3:
-                        line = f"{Bx:>10}{By:>10}{Bz:>10} &\n"
-                    else:
-                        line = f"{Bx:>10}{By:>10}{Bz:>10} &&\n"
-                
+print(f"Output saved: {plot_output}")
 
-                file.write(line)
+# ----------------------------------------------
+# Generating FLUKA input
+# ----------------------------------------------
+print("\nGenerating FLUKA input...")
 
-    print('Checking if the last line is properly formatted...')
-    # read file
-    with open(output, "r") as f:
-        lines = f.readlines()
+lines = []
 
-    last_line = lines[-1].rstrip("\n")
+for i, (br, bz) in enumerate(zip(Br, Bz)):
+    if i % 3 == 0:
+        lines.append(f"{'MGNDATA':<10}{br:>10}{bz:>10}")
 
-    # ensure minimum length of 73 characters
-    if len(last_line) < 73:
-        # pad to at least 73 chars
-        last_line = last_line.ljust(73)
+    elif i % 3 == 1:
+        lines.append(f"{br:>10}{bz:>10}")
 
-    # force '&&' at positions 72 and 73 (0-based indexing: 71 and 72)
-    last_line = last_line[:71] + "&&"
+    else:
+        if i == 2:
+            lines.append(f"{br:>10}{bz:>10}{'FMCYLIN':<10}\n")
+        elif i == 5:
+            lines.append(f"{br:>10}{bz:>10} &\n")
+        else:
+            lines.append(f"{br:>10}{bz:>10} &&\n")
 
-    # replace last line and write back
-    lines[-1] = last_line #+ "\n"
+with open(output, "w") as file:
+    file.write("".join(lines))
+    # file.write("\n")
 
-    with open(output, "w") as f:
-        f.writelines(lines)
+print('Checking if the last line is properly formatted...')
+# read file
+with open(output, "r") as f:
+    lines = f.readlines()
 
-    print('Done!')
+last_line = lines[-1].rstrip("\n")
 
-    os.makedirs("Bfield_Plots", exist_ok=True)
-    plot_output = "Bfield_Plots/" + filename_cylin.replace('fm', 'fluka').replace('.txt', '.png')
+# ensure minimum length of 73 characters
+if len(last_line) < 73:
+    # pad to at least 73 chars
+    last_line = last_line.ljust(73)
 
-    if coords_cylin == 'rz':
-        print(f'Plotting the field map and saving to: {plot_output}\n')
-        on_axis = (data_sorted['r'] == 0)
-        z = data_sorted[on_axis]['z']
-        Bz = data_sorted[on_axis]['Bz']
-        printMaxB = f'Maximum B-field on axis: {max(Bz):.4f} T at z = {z[Bz.idxmax()]:.2f} cm'
-        printMinB = f'Minimum B-field on axis: {min(Bz):.4f} T at z = {z[Bz.idxmin()]:.2f} cm'
-        plt.figure(figsize=(7, 4.5))
-        plt.plot(z, Bz, color='orange')
-        plt.xlabel('z [cm]', fontsize=14)
-        plt.ylabel('Bz [T]', fontsize=14)
-        plt.tick_params(axis='both', labelsize=14)
-        plt.title('Bz on beam axis', fontsize=16)
-        plt.savefig(plot_output, bbox_inches='tight')
-        plt.close()
+# force '&&' at positions 72 and 73 (0-based indexing: 71 and 72)
+last_line = last_line[:71] + "&&"
 
-## --------------------------------------------
-## -------------- For grid data ---------------
-## --------------------------------------------
-if filename_grid is not None:
-    filename = directory + filename_grid
-    coords_grid = fm.getCoords(filename)
+# replace last line and write back
+lines[-1] = last_line #+ "\n"
 
-    print(f'Processing file: {filename} with coordinates: {coords_grid}')
-    data = fm.dataOrganizer(filename)
-    data_sorted = fm.sortData(data)
+with open(output, "w") as f:
+    f.writelines(lines)
 
-    os.makedirs("Bfield_flukaDatasets", exist_ok=True)
-    output = "Bfield_flukaDatasets/" + filename_grid.replace('fm', 'fluka').replace('.txt', '.inp')
+print('Done!')
 
-    print(f'Printing into output file: {output}')
-    with open(output, "w+") as file:
-        if coords_grid == 'rz':
-            for i in range(len(data_sorted)):
-                Br = fm.tenDigit(data_sorted['Br'].iloc[i])
-                Bz = fm.tenDigit(data_sorted['Bz'].iloc[i])
-                empty = ' '
+print(f"FLUKA input saved: {output}")
 
-                name = 'FMCYLIN'
-                space = ' '
-                mgn = 'MGNDATA'
-
-                # if i % 2 == 0:
-                #     line = f"{mgn:<10}{Br:>10}{Bz:>10}{empty:>10}"
-                # else:
-                #     if i == 1:
-                #         line = f"{Br:>10}{Bz:>10}{empty:>10}{name:<10}\n"
-                #     elif i == 3:
-                #         line = f"{Br:>10}{Bz:>10}{empty:>10} &\n"
-                #     else:
-                #         line = f"{Br:>10}{Bz:>10}{empty:>10} &&\n"        
-                
-                if i % 3 == 0:
-                    line = f"{mgn:<10}{Br:>10}{Bz:>10}"
-                elif i % 3 == 1:
-                    line = f"{Br:>10}{Bz:>10}"
-                else:
-                    if i == 2:
-                        line = f"{Br:>10}{Bz:>10}{name:<10}\n"
-                    elif i == 5:
-                        line = f"{Br:>10}{Bz:>10} &\n"
-                    else:
-                        line = f"{Br:>10}{Bz:>10} &&\n"
-                
-
-                file.write(line)
-
-        if coords_grid == 'xyz':
-            for i in range(len(data_sorted)):
-                Bx = fm.tenDigit(data_sorted['Bx'].iloc[i])
-                By = fm.tenDigit(data_sorted['By'].iloc[i])
-                Bz = fm.tenDigit(data_sorted['Bz'].iloc[i])
-
-                name = 'FMGRID'
-                space = ' '
-                mgn = 'MGNDATA'        
-                
-                if i % 2 == 0:
-                    line = f"{mgn:<10}{Bx:>10}{By:>10}{Bz:>10}"
-                else:
-                    if i == 1:
-                        line = f"{Bx:>10}{By:>10}{Bz:>10}{name:<10}\n"
-                    elif i == 3:
-                        line = f"{Bx:>10}{By:>10}{Bz:>10} &\n"
-                    else:
-                        line = f"{Bx:>10}{By:>10}{Bz:>10} &&\n"
-                
-
-                file.write(line)
-
-    print('Checking if the last line is properly formatted...')
-    # read file
-    with open(output, "r") as f:
-        lines = f.readlines()
-
-    last_line = lines[-1].rstrip("\n")
-
-    # ensure minimum length of 73 characters
-    if len(last_line) < 73:
-        # pad to at least 73 chars
-        last_line = last_line.ljust(73)
-
-    # force '&&' at positions 72 and 73 (0-based indexing: 71 and 72)
-    last_line = last_line[:71] + "&&"
-
-    # replace last line and write back
-    lines[-1] = last_line #+ "\n"
-
-    with open(output, "w") as f:
-        f.writelines(lines)
-
-    print('Done!\n')
-    print(printMaxB)
-    print(printMinB, '\n')
+# ----------------------------------------------
+# Printing maximum and minimum B-field on axis
+# ----------------------------------------------
+print("\n" + printMaxB)
+print(printMinB)
