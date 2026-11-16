@@ -29,9 +29,9 @@ flukaSims/BfieldStrength/*/
 # Ignore everything inside them
 flukaSims/BfieldStrength/exe/*
 flukaSims/BfieldStrength/exe2/*
-fieldmap/Bfield_flukaDatasets/*.flair
-fieldmap/Bfield_flukaDatasets/*.flair~
-fieldmap/Bfield_flukaDatasets/*.inp~
+fieldmap/flukaDatasets/*.flair
+fieldmap/flukaDatasets/*.flair~
+fieldmap/flukaDatasets/*.inp~
 
 # But keep .f files
 !flukaSims/BfieldStrength/exe/*.f
